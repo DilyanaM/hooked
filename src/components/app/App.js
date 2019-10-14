@@ -6,6 +6,8 @@ import Search from '../search/Search';
 import { API_KEY, FAVORITES_URL } from '../../constants/api';
 
 const initialState = {
+  favorites: false,
+  searchValue: '',
   loading: true,
   movies: [],
   errorMessage: null
@@ -13,6 +15,13 @@ const initialState = {
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'SEARCH_FAVORITES_SUCCESS':
+      return {
+        ...state,
+        loading: false,
+        favorites: true,
+        movies: action.payload
+      }
     case 'SEARCH_MOVIES_REQUEST':
       return {
         ...state,
@@ -23,7 +32,8 @@ const reducer = (state, action) => {
       return {
         ...state,
         loading: false,
-        movies: action.payload
+        movies: action.payload,
+        favorites: false
       };
     case 'SEARCH_MOVIES_FAILURE':
       return {
@@ -31,6 +41,11 @@ const reducer = (state, action) => {
         loading: false,
         errorMessage: action.error
       };
+    case 'SET_SEARCH_VALUE':
+      return {
+        ...state,
+        searchValue: action.payload
+      }
     default:
       return state;
   }
@@ -44,13 +59,18 @@ const App = () => {
       .then(response => response.json())
       .then(jsonResponse => {
         dispatch({
-          type: 'SEARCH_MOVIES_SUCCESS',
+          type: 'SEARCH_FAVORITES_SUCCESS',
           payload: jsonResponse.Search
         });
       });
   }, []);
 
   const search = searchValue => {
+    dispatch({
+      type: 'SET_SEARCH_VALUE',
+      payload: searchValue
+    });
+
     dispatch({
       type: 'SEARCH_MOVIES_REQUEST'
     });
@@ -72,13 +92,18 @@ const App = () => {
       });
   };
 
-  const { movies, errorMessage, loading } = state;
+  const { searchValue, favorites, movies, errorMessage, loading } = state;
 
   return (
     <div className="App">
       <Header text="HOOKED" />
       <Search search={search} />
-      <p className="App-intro">Sharing a few of our favourite movies</p>
+      <p className="App-intro">
+        {favorites
+          ? 'Sharing a few of our favourite movies'
+          : `Results for: ${searchValue}`
+        }
+      </p>
       <div className="movies">
         {loading && !errorMessage
           ? <span>loading...</span>
