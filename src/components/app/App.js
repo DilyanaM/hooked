@@ -106,7 +106,7 @@ const App = () => {
       </p>
       <div className="movies">
         {loading && !errorMessage
-          ? <span>loading...</span>
+          ? <span>Loading...</span>
           : errorMessage
           ? <div className="errorMessage">{errorMessage}</div>
           : (movies.map((movie, index) => (
